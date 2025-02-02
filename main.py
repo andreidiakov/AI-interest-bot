@@ -1,12 +1,16 @@
 import asyncio
 import os
+from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
 from storage import UserStorage, ActivitiesLoader
 from keyboard import generate_keyboard
-from config import TELEGRAM_TOKEN, OPENAI_API_KEY
 from gpt_service import GPTService
+
+load_dotenv() 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher()
