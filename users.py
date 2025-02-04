@@ -54,4 +54,5 @@ class User:
         }
     
     def should_send_motivation(self, probability=0.5):
+        random.seed(None)
         return self.motivation_available and (random.random() < probability) # вероятность
