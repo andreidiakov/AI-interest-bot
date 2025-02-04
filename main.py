@@ -21,7 +21,7 @@ gpt_requests = GPTService(OPENAI_API_KEY)
 
 motivation_on = True
 probability = 0.5
-delay = 5*60
+delay = 15 #*60 - тест
 
 async def send_info(message: Message):
     image = FSInputFile("image.png")
@@ -44,12 +44,13 @@ async def send_random_motivation_image(user, message: Message):
 
     image_number = random.randint(1, 5)
     image_path = f"image_{image_number}.png"
-
+    #Отправляем мотивацию 
     try:
         image = FSInputFile(image_path)
         await message.answer_photo(
             chat_id=message.chat.id,
             photo = image)
+        print(f"[LOG] Пользователю {user.user_id}: отправили {image_path}")
         user.motivation_available = True
     except FileNotFoundError:
         print(f"[WARNING] Изображение {image_path} не найдено.")
@@ -125,7 +126,7 @@ async def handle_message(message: Message):
         return
 
     if user.should_send_motivation(probability):
-        asyncio.create_task(send_random_motivation_image(user, message, motivation_on=True))
+        asyncio.create_task(send_random_motivation_image(user, message))
 
     # Если включён статус GPT, перенаправляем все сообщения в GPT (кроме команды "Назад")
     if user.gpt_status == True and message.text != "Назад":
