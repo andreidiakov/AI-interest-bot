@@ -46,7 +46,6 @@ async def send_random_motivation_image(message: Message):
     random.seed(None) 
     image_number = random.randint(1, 5)
     image_path = f"image_{image_number}.png"
-    #Отправляем мотивацию 
     try:
         image = FSInputFile(image_path)
         await bot.send_photo(
