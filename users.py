@@ -1,4 +1,5 @@
 from datetime import datetime
+import random
 
 class User:
     def __init__(self, user_id):
@@ -10,7 +11,8 @@ class User:
         self.gpt_status = False 
         self.selected_category = None  
         self.selected_subcategory = None  
-        self.last_interaction = datetime.now()
+        self.motivaion_available = True #можно присылать
+        self.registration_date = datetime.now()
 
     def set_name(self, name):
         self.name = name
@@ -27,11 +29,17 @@ class User:
     def set_gpt_status(self, status):
         self.gpt_status = status
     
+    def update_last_interaction(self):
+        self.last_interaction = datetime.now()
+    
     #Сбрасывает все данные пользователя, кроме согласия с условиями.
     def reset_data(self):
         self.name = None
         self.age = None
         self.interests = None
+        self.selected_category = None
+        self.selected_subcategory = None
+        self.gpt_status = False
 
     def to_dict(self):
         return {
@@ -42,3 +50,6 @@ class User:
             "agreed": self.agreed,
             "last_interaction": self.last_interaction.strftime("%Y-%m-%d %H:%M:%S"),
         }
+    
+    def should_send_motivation(self, probability=0.5):
+        return self.motivaion_available and (random.random() < probability) # вероятность

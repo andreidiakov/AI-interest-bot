@@ -1,5 +1,6 @@
 import asyncio
 import os
+import random
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
@@ -18,6 +19,7 @@ user_storage = UserStorage()
 activities_loader = ActivitiesLoader()
 gpt_requests = GPTService(OPENAI_API_KEY)
 
+motivaion_on = True
 
 async def send_info(message: Message):
     image = FSInputFile("image.png")
@@ -32,6 +34,22 @@ async def send_info(message: Message):
         caption=info_text,
         reply_markup=generate_keyboard(MAIN_MENU_OPTIONS)
     )
+
+async def send_random_motivation_image(user, message: Message):
+
+    if user.should_send_motivation(wait_minutes=5, probability=0.5) and motivaion_on:
+        user.motivaion_available = False
+        await asyncio.sleep(5*60) 
+
+        image_number = random.randint(1, 5)
+        image_path = f"image_{image_number}.png"
+
+        try:
+            image = FSInputFile(image_path)
+            await bot.send_photo(message.chat.id, photo=image)
+            user.motivaion_available = True
+        except FileNotFoundError:
+            print(f"[WARNING] Изображение {image_path} не найдено.")
 
 # Команда возврата в главное меню
 MAIN_MENU_OPTIONS = ["Начать!", "Профиль", "О боте"]
@@ -52,7 +70,7 @@ async def start_command(message: Message):
         agreement_text = (
             "Добро пожаловать! Прежде чем продолжить, "
             "вы должны согласиться с пользовательским соглашением: "
-            "https://example.com/agreement\n\n"
+            "https://drive.google.com/file/d/1einPlu7V560Jb7v8npiCqqsr7b54L6Z4/view?usp=drive_link\n\n"
             "Нажмите 'Согласен', чтобы продолжить, или 'Не согласен', чтобы выйти."
         )
         await message.answer(agreement_text, reply_markup=generate_keyboard(["Согласен", "Не согласен"]))
@@ -102,6 +120,8 @@ async def handle_message(message: Message):
             await message.answer("Пожалуйста, выберите 'Согласен' или 'Не согласен'.", reply_markup=keyboard)
             log_to_console(message.from_user.id, f"Некорректный ввод: {message.text}")
         return
+
+    await send_random_motivation_image(user, message)
 
     # Если включён статус GPT, перенаправляем все сообщения в GPT (кроме команды "Назад")
     if user.gpt_status == True and message.text != "Назад":
