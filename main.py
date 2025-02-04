@@ -43,6 +43,7 @@ async def send_random_motivation_image(message: Message):
     user.motivation_available = False # Блокируем повторную отправку
     await asyncio.sleep(delay)
 
+    random.seed(None) 
     image_number = random.randint(1, 5)
     image_path = f"image_{image_number}.png"
     #Отправляем мотивацию 
