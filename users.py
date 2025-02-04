@@ -14,7 +14,7 @@ class User:
         self.selected_category = None  
         self.selected_subcategory = None  
         self.motivation_available = True #можно присылать
-        self.registration_date = datetime.now()
+        self.last_interaction = datetime.now()
 
     def set_name(self, name):
         self.name = name
@@ -42,11 +42,6 @@ class User:
         self.selected_category = None
         self.selected_subcategory = None
         self.gpt_status = False
-    
-    async def reset_motivation_status(user, delay=5*60):
-        """Ждёт 5 минут перед тем, как снова включить мотивацию."""
-        await asyncio.sleep(delay)
-        user.motivation_available = True
 
     def to_dict(self):
         return {

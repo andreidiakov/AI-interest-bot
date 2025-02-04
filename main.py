@@ -48,7 +48,7 @@ async def send_random_motivation_image(message: Message):
     #Отправляем мотивацию 
     try:
         image = FSInputFile(image_path)
-        await bot.answer_photo(
+        await bot.send_photo(
             chat_id=message.chat.id,
             photo = image)
         print(f"[LOG] Пользователю {user.user_id}: отправили {image_path}")
