@@ -19,7 +19,9 @@ user_storage = UserStorage()
 activities_loader = ActivitiesLoader()
 gpt_requests = GPTService(OPENAI_API_KEY)
 
-motivaion_on = True
+motivation_on = True
+probability = 0.5
+delay = 5*60
 
 async def send_info(message: Message):
     image = FSInputFile("image.png")
@@ -36,20 +38,21 @@ async def send_info(message: Message):
     )
 
 async def send_random_motivation_image(user, message: Message):
+    #Отправляет случайную мотивационную картинку, если прошло 5 минут.
+    user.motivation_available = False # Блокируем повторную отправку
+    await asyncio.sleep(delay)
 
-    if user.should_send_motivation(wait_minutes=5, probability=0.5) and motivaion_on:
-        user.motivaion_available = False
-        await asyncio.sleep(5*60) 
+    image_number = random.randint(1, 5)
+    image_path = f"image_{image_number}.png"
 
-        image_number = random.randint(1, 5)
-        image_path = f"image_{image_number}.png"
-
-        try:
-            image = FSInputFile(image_path)
-            await bot.send_photo(message.chat.id, photo=image)
-            user.motivaion_available = True
-        except FileNotFoundError:
-            print(f"[WARNING] Изображение {image_path} не найдено.")
+    try:
+        image = FSInputFile(image_path)
+        await message.answer_photo(
+            chat_id=message.chat.id,
+            photo = image)
+        user.motivation_available = True
+    except FileNotFoundError:
+        print(f"[WARNING] Изображение {image_path} не найдено.")
 
 # Команда возврата в главное меню
 MAIN_MENU_OPTIONS = ["Начать!", "Профиль", "О боте"]
@@ -121,7 +124,8 @@ async def handle_message(message: Message):
             log_to_console(message.from_user.id, f"Некорректный ввод: {message.text}")
         return
 
-    await send_random_motivation_image(user, message)
+    if user.should_send_motivation(probability):
+        asyncio.create_task(send_random_motivation_image(user, message, motivation_on=True))
 
     # Если включён статус GPT, перенаправляем все сообщения в GPT (кроме команды "Назад")
     if user.gpt_status == True and message.text != "Назад":

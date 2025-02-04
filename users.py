@@ -1,5 +1,7 @@
 from datetime import datetime
+import asyncio
 import random
+from aiogram.types import Message, FSInputFile
 
 class User:
     def __init__(self, user_id):
@@ -11,7 +13,7 @@ class User:
         self.gpt_status = False 
         self.selected_category = None  
         self.selected_subcategory = None  
-        self.motivaion_available = True #можно присылать
+        self.motivation_available = True #можно присылать
         self.registration_date = datetime.now()
 
     def set_name(self, name):
@@ -40,6 +42,11 @@ class User:
         self.selected_category = None
         self.selected_subcategory = None
         self.gpt_status = False
+    
+    async def reset_motivation_status(user, delay=5*60):
+        """Ждёт 5 минут перед тем, как снова включить мотивацию."""
+        await asyncio.sleep(delay)
+        user.motivation_available = True
 
     def to_dict(self):
         return {
@@ -52,4 +59,4 @@ class User:
         }
     
     def should_send_motivation(self, probability=0.5):
-        return self.motivaion_available and (random.random() < probability) # вероятность
+        return self.motivation_available and (random.random() < probability) # вероятность
