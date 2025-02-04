@@ -37,8 +37,9 @@ async def send_info(message: Message):
         reply_markup=generate_keyboard(MAIN_MENU_OPTIONS)
     )
 
-async def send_random_motivation_image(user, message: Message):
+async def send_random_motivation_image(message: Message):
     #Отправляет случайную мотивационную картинку, если прошло 5 минут.
+    user = user_storage.add_user(message.from_user.id)
     user.motivation_available = False # Блокируем повторную отправку
     await asyncio.sleep(delay)
 
@@ -47,7 +48,7 @@ async def send_random_motivation_image(user, message: Message):
     #Отправляем мотивацию 
     try:
         image = FSInputFile(image_path)
-        await message.answer_photo(
+        await bot.answer_photo(
             chat_id=message.chat.id,
             photo = image)
         print(f"[LOG] Пользователю {user.user_id}: отправили {image_path}")
@@ -126,7 +127,7 @@ async def handle_message(message: Message):
         return
 
     if user.should_send_motivation(probability):
-        asyncio.create_task(send_random_motivation_image(user, message))
+        asyncio.create_task(send_random_motivation_image(message))
 
     # Если включён статус GPT, перенаправляем все сообщения в GPT (кроме команды "Назад")
     if user.gpt_status == True and message.text != "Назад":
