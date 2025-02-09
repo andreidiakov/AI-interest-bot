@@ -21,7 +21,7 @@ gpt_requests = GPTService(OPENAI_API_KEY)
 
 motivation_on = True
 probability = 0.5
-delay = 5*60 
+delay = 3.5*60 
 
 async def send_info(message: Message):
     image = FSInputFile("image.png")
